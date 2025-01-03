@@ -1,29 +1,28 @@
-#include "LinearProbing.h"
+#include "QuadraticProbing.h"
 
-LinearProbing::LinearProbing(){
+QuadraticProbing::QuadraticProbing(){
     M=0;
     bankStorage1d=std::vector<Account>(sizes[M],Account({"",-1}));
     size=0;
 }
 
-void LinearProbing::createAccount(std::string id, int count) {
+void QuadraticProbing::createAccount(std::string id, int count) {
+    // IMPLEMENT YOUR CODE HERE
     if(size+1>sizes[M]/2){
         resize(M+1);
     }
     int id_hash=hash(id);
     for(int i=0;;i++){
-        if(bankStorage1d[(id_hash+i)%sizes[M]].balance==-1){
-            bankStorage1d[(id_hash+i)%sizes[M]]=Account({id,count});
+        if(bankStorage1d[(id_hash+((i*i)%sizes[M]))%sizes[M]].balance==-1){
+            bankStorage1d[(id_hash+((i*i)%sizes[M]))%sizes[M]]=Account({id,count});
             break;
         }
     }
     size++;
-    // IMPLEMENT YOUR CODE HERE
 }
 
-std::vector<int> LinearProbing::getTopK(int k) {
+std::vector<int> QuadraticProbing::getTopK(int k) {
     // IMPLEMENT YOUR CODE HERE
-
     std::vector<int> sorted(size);
     for(int i=0,c=0;i<sizes[M];i++){
         if(bankStorage1d[i].balance>0){
@@ -33,25 +32,25 @@ std::vector<int> LinearProbing::getTopK(int k) {
     helper_topK(sorted,0,size);
     std::vector<int> ans(k);
     for(int i=0;i<k && i<ans.size();i++)ans[i]=sorted[i];
-    return ans;
+    return ans;// Placeholder return value
 }
 
-int LinearProbing::getBalance(std::string id) {
+int QuadraticProbing::getBalance(std::string id) {
     // IMPLEMENT YOUR CODE HERE
     int id_hash=hash(id),at;
     for(int i=0;i<sizes[M];i++){
-        at=(id_hash+i)%sizes[M];
+        at=(id_hash+((i*i)%sizes[M]))%sizes[M];
         if(bankStorage1d[at].balance==-1)break;
         if(bankStorage1d[at].id==id)return bankStorage1d[at].balance;
     }
-    return -1; // Placeholder return value
+    return -1;
 }
 
-void LinearProbing::addTransaction(std::string id, int count) {
+void QuadraticProbing::addTransaction(std::string id, int count) {
     // IMPLEMENT YOUR CODE HERE
     int id_hash=hash(id),at;
     for(int i=0;i<sizes[M];i++){
-        at=(id_hash+i)%sizes[M];
+        at=(id_hash+((i*i)%sizes[M]))%sizes[M];
         if(bankStorage1d[at].balance==-1)break;
         if(bankStorage1d[at].id==id){
             bankStorage1d[at].balance+=count;
@@ -61,23 +60,22 @@ void LinearProbing::addTransaction(std::string id, int count) {
     createAccount(id,count);
 }
 
-bool LinearProbing::doesExist(std::string id) {
+bool QuadraticProbing::doesExist(std::string id) {
     // IMPLEMENT YOUR CODE HERE
-
     int id_hash=hash(id),at;
     for(int i=0;i<sizes[M];i++){
-        at=(id_hash+i)%sizes[M];
+        at=(id_hash+((i*i)%sizes[M]))%sizes[M];
         if(bankStorage1d[at].balance==-1)break;
         if(bankStorage1d[at].id==id)return true;
     }
-    return false; // Placeholder return value
+    return false;
 }
 
-bool LinearProbing::deleteAccount(std::string id) {
+bool QuadraticProbing::deleteAccount(std::string id) {
     // IMPLEMENT YOUR CODE HERE
     int id_hash=hash(id),at;
     for(int i=0;i<sizes[M];i++){
-        at=(id_hash+i)%sizes[M];
+        at=(id_hash+((i*i)%sizes[M]))%sizes[M];
         if(bankStorage1d[at].balance==-1)break;
         if(bankStorage1d[at].id==id){
             bankStorage1d[at].id="";
@@ -91,15 +89,12 @@ bool LinearProbing::deleteAccount(std::string id) {
     }
     return false;
 }
-int LinearProbing::databaseSize() {
+int QuadraticProbing::databaseSize() {
     // IMPLEMENT YOUR CODE HERE
-    return size;
-    return 0; // Placeholder return value
+    return size; // Placeholder return value
 }
 
-int LinearProbing::hash(std::string id){
-    // IMPLEMENT YOUR CODE HERE
-
+int QuadraticProbing::hash(std::string id) {
     long long int hash=0;
     long long int a,b,c;
     a = ((((id[0]-'A')*26+(id[1]-'A'))*26+(id[2]-'A'))*26+(id[3]-'A'))%sizes[M];
@@ -108,6 +103,6 @@ int LinearProbing::hash(std::string id){
     hash = (((a+b+c)*(a+b+c+1)*(a+b+c+2))/6)%sizes[M] + (((a+b)*(a+b+1))/2)%sizes[M] + a;
 
 
-    return (hash%sizes[M]+sizes[M])%sizes[M]; // Placeholder return value
+    return (hash%sizes[M]+sizes[M])%sizes[M];
 }
 
